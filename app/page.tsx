@@ -1,65 +1,119 @@
-import Image from "next/image";
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { insforge } from '@/lib/insforge';
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    insforge.auth.getCurrentUser().then(({ data }) => {
+      if (data?.user) {
+        setIsAuthenticated(true);
+      }
+      setLoading(false);
+    });
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-black overflow-hidden font-sans text-zinc-100">
+      {/* Ambient backgrounds */}
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] bg-violet-500/10 rounded-full blur-[140px] pointer-events-none" />
+
+      {/* Navigation */}
+      <nav className="absolute top-0 left-0 right-0 h-20 border-b border-zinc-900 bg-zinc-950/20 backdrop-blur-md z-20">
+        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <span className="text-white text-base font-bold">A</span>
+            </div>
+            <span className="text-lg font-bold tracking-tight text-white">ApplyForge</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {loading ? (
+              <div className="h-8 w-20 bg-zinc-900 rounded-xl animate-pulse" />
+            ) : isAuthenticated ? (
+              <Link
+                href="/dashboard"
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/10 transition-all duration-200"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/sign-in"
+                  className="px-4 py-2 rounded-xl text-zinc-400 hover:text-white text-xs font-semibold transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/10 transition-all duration-200"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </nav>
+
+      {/* Hero content */}
+      <main className="max-w-3xl px-6 text-center z-10 pt-20">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-medium mb-6 animate-fade-in">
+          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+          Track and organize your job search
+        </div>
+        
+        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white leading-none mb-6">
+          Forge Your Path to a <br className="hidden sm:inline" />
+          <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-500 bg-clip-text text-transparent">
+            New Career Opportunity
+          </span>
+        </h1>
+
+        <p className="text-lg text-zinc-400 max-w-xl mx-auto mb-10 leading-relaxed">
+          ApplyForge is a modern job application tracker designed to simplify your job hunt. Add opportunities, organize statuses, track salaries, and keep detailed interview logs in one dashboard.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          {loading ? (
+            <div className="h-14 w-40 bg-zinc-900 rounded-2xl animate-pulse" />
+          ) : isAuthenticated ? (
+            <Link
+              href="/dashboard"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-xl shadow-indigo-600/20 transition-all duration-200"
+            >
+              Go to Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/sign-up"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-xl shadow-indigo-600/20 transition-all duration-200"
+              >
+                Get Started for Free
+              </Link>
+              <Link
+                href="/sign-in"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800/80 transition-all duration-200"
+              >
+                Sign In
+              </Link>
+            </>
+          )}
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="absolute bottom-6 text-zinc-600 text-xs font-semibold">
+        © {new Date().getFullYear()} ApplyForge. Powered by InsForge.
+      </footer>
     </div>
   );
 }
