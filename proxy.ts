@@ -10,8 +10,12 @@ export function proxy(request: NextRequest) {
     try {
       const parts = token.split('.');
       if (parts.length === 3) {
-        // Decode the payload of the JWT
-        const payload = JSON.parse(atob(parts[1]));
+        // Safely decode Base64Url payload of the JWT
+        const base64Url = parts[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const pad = (4 - (base64.length % 4)) % 4;
+        const padded = base64 + '='.repeat(pad);
+        const payload = JSON.parse(atob(padded));
         const exp = payload.exp;
         if (exp) {
           isExpired = Date.now() >= exp * 1000;
@@ -19,7 +23,7 @@ export function proxy(request: NextRequest) {
           isExpired = false;
         }
       }
-    } catch {
+    } catch (err) {
       isExpired = true;
     }
   }
@@ -28,7 +32,11 @@ export function proxy(request: NextRequest) {
 
   // Protect /dashboard and all its subroutes
   if (pathname.startsWith('/dashboard')) {
-    if (!isAuthenticated) {
+    const isOAuthCallback = request.nextUrl.searchParams.has('insforge_code') || 
+                            request.nextUrl.searchParams.has('insforge_status') ||
+                            request.nextUrl.searchParams.has('insforge_error');
+
+    if (!isAuthenticated && !isOAuthCallback) {
       const signInUrl = new URL('/sign-in', request.url);
       return NextResponse.redirect(signInUrl);
     }

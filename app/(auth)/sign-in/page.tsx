@@ -42,8 +42,9 @@ function SignInForm() {
         toast.success('Successfully signed in!');
         // Force cookie sync
         document.cookie = `insforge-token=${data.accessToken}; path=/; max-age=604800; SameSite=Lax`;
-        router.replace('/dashboard');
-        router.refresh();
+        
+        // Use full reload redirect to ensure cookie propagates to Next.js proxy
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.');

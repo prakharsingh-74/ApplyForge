@@ -5,15 +5,19 @@ import { insforge } from '@/lib/insforge';
 
 export default function AuthSync() {
   useEffect(() => {
-    // Initial check on page load to see if a session exists (or to process OAuth redirects)
-    insforge.auth.getCurrentUser().then(async ({ data }) => {
-      if (data?.user) {
-        const token = await insforge.getHttpClient().getValidAccessToken();
-        if (token) {
-          document.cookie = `insforge-token=${token}; path=/; max-age=604800; SameSite=Lax`;
+    const hasToken = document.cookie.split(';').some((item) => item.trim().startsWith('insforge-token='));
+
+    // Only query server if a token cookie actually exists to prevent console 401 errors
+    if (hasToken) {
+      insforge.auth.getCurrentUser().then(async ({ data }) => {
+        if (data?.user) {
+          const token = await insforge.getHttpClient().getValidAccessToken();
+          if (token) {
+            document.cookie = `insforge-token=${token}; path=/; max-age=604800; SameSite=Lax`;
+          }
         }
-      }
-    });
+      });
+    }
 
     // Listen for authentication changes (sign in, token refresh, sign out)
     const unsubscribe = insforge.auth.onAuthStateChange(async (event) => {

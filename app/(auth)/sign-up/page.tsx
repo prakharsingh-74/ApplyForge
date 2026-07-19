@@ -44,8 +44,7 @@ export default function SignUp() {
           toast.success('Welcome! Your account has been created.');
           if (data.accessToken) {
             document.cookie = `insforge-token=${data.accessToken}; path=/; max-age=604800; SameSite=Lax`;
-            router.replace('/dashboard');
-            router.refresh();
+            window.location.href = '/dashboard';
           } else {
             router.replace('/sign-in');
           }
@@ -77,8 +76,7 @@ export default function SignUp() {
       } else if (data) {
         toast.success('Email verified successfully! Welcome aboard.');
         document.cookie = `insforge-token=${data.accessToken}; path=/; max-age=604800; SameSite=Lax`;
-        router.replace('/dashboard');
-        router.refresh();
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       toast.error('Verification failed. Please try again.');

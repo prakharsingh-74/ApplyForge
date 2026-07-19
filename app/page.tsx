@@ -9,12 +9,18 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    insforge.auth.getCurrentUser().then(({ data }) => {
-      if (data?.user) {
-        setIsAuthenticated(true);
-      }
+    const hasToken = document.cookie.split(';').some((item) => item.trim().startsWith('insforge-token='));
+
+    if (hasToken) {
+      insforge.auth.getCurrentUser().then(({ data }) => {
+        if (data?.user) {
+          setIsAuthenticated(true);
+        }
+        setLoading(false);
+      });
+    } else {
       setLoading(false);
-    });
+    }
   }, []);
 
   return (
